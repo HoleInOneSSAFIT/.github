@@ -22,6 +22,19 @@ SSAFIT은 이러한 문제를 해결하기 위해 다음과 같은 기능을 제
 이를 통해 사용자는 자연스럽게 운동 루틴을 시작하고, 꾸준히 운동 습관을 만들어갈 수 있는 발판을 마련할 수 있습니다.  
 <br>
 
+## 팀원 소개
+
+<div align="center">
+
+| <img src="https://img.shields.io/badge/Project_Leader-FF5733" /> | <img src="https://img.shields.io/badge/Team_Member-%2300264B" /> |
+| :--------------------------------------------------------------: | :--------------------------------------------------------------: |
+|      <img src="https://avatars.githubusercontent.com/u/195052290?v=4" width="120px;" alt="김윤정" />      |      <img src="https://avatars.githubusercontent.com/u/180911275?v=4" width="120px;" alt="이현지" />      |
+|           [김윤정](https://github.com/yoonjeongKm)           |           [이현지](https://github.com/hyunjilee1132)           |
+|  팀장 - 운동 루틴 생성 및 커뮤니티 기능 담당  |  팀원 - 유저 관리 및 커뮤니티 댓글 기능 담당  |
+
+</div>
+<br>
+
 ## 개발환경 및 개발도구
 ### Frontend<br/>
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
@@ -53,3 +66,39 @@ SSAFIT은 이러한 문제를 해결하기 위해 다음과 같은 기능을 제
 ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)
 ![Jira](https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=jira&logoColor=white)
 ![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)
+<br>
+
+## ERD
+![Image](https://github.com/user-attachments/assets/8df9f3ed-101d-4019-ac9c-2c746dd7f9f9)
+| 테이블명        | 설명                 |
+|-----------------|----------------------|
+| user            | 회원 정보            |
+| routine         | 운동 루틴            |
+| routine_video   | 운동 루틴과 운동 영상 매핑 |
+| youtube_video   | 유튜브 영상 메타데이터 |
+| uploaded_video  | 직접 업로드한 영상 정보 |
+| post            | 운동 루틴 공유 게시글 |
+| post_file       | 게시글 첨부 파일      |
+| comment         | 게시글 댓글 및 대댓글  |
+| post_like       | 게시글 좋아요         |
+<br>
+
+## 프로젝트 실행 가이드
+### holeinone-server 실행
+
+- `holeinone-server/src/main/resources` 경로에 `application.properties` 파일을 생성합니다.
+- 다음과 같은 설정 항목들을 환경에 맞게 작성해야 합니다:
+  - 데이터베이스(MySQL) 연결 정보
+  - 유튜브 API 키
+  - JWT 비밀 키
+  - AWS S3 관련 설정
+- 초기 데이터베이스 스키마는 `holeinone-server/src/main/resources/ssafit.sql` 파일을 참고해 구성합니다.
+
+### holeinone-front 실행
+
+- `holeinone-front` 디렉토리에서 다음 명령어를 실행해 개발 서버를 시작합니다:
+
+```bash
+cd holeinone-front
+npm install
+npm run dev
