@@ -186,6 +186,36 @@ SSAFIT은 이러한 문제를 해결하기 위해 다음과 같은 기능을 제
 <br>
 
 ## API 명세서
+### AdminController
+| HTTP Method | API | Description | Request Body/Params | Response Body | Authorization |
+| --- | --- | --- | --- | --- | --- |
+| GET | /api/admin/users | 모든 회원 조회 | Header:<br>Authorization: Bearer &lt;accessToken&gt; | List&lt;User&gt;<br>(회원 목록) | O (ROLE_ADMIN) |
+| GET | /api/admin/users/{username} | 특정 회원 조회 | Path Variable:<br>username<br>Header:<br>Authorization: Bearer &lt;accessToken&gt; | User<br>(특정 회원 정보) | O (ROLE_ADMIN) |
+| DELETE | /api/admin/users/{username} | 특정 회원 탈퇴 | Path Variable:<br>username<br>Header:<br>Authorization: Bearer &lt;accessToken&gt; | "회원이 정상적으로 탈퇴 되었습니다.” | O (ROLE_ADMIN) |
+
+### AuthController
+| HTTP Method | API | Description | Request Body/Params | Response Body | Authorization |
+| --- | --- | --- | --- | --- | --- |
+| GET | /api/auth/check-username | 아이디 중복 확인 | username | Boolean | X |
+| GET | /api/auth/check-nickname | 닉네임 중복 확인 | nickname | Boolean | X |
+| GET | /api/auth/postlist | 사용자가 작성한 게시글 목록 | Header:<br>Authorization: Bearer &lt;accessToken&gt; | List&lt;Post&gt;<br>(게시글 정보 목록) | O (ROLE_USER) |
+| GET | /api/auth/commentlist | 사용자가 작성한 댓글 목록 | Header:<br>Authorization: Bearer &lt;accessToken&gt; | List&lt;CommentResponse&gt;<br>(댓글 목록) | O (ROLE_USER) |
+| GET | /api/auth/info | 사용자 정보 | Header:<br>Authorization: Bearer &lt;accessToken&gt; | User<br>(회원 상세 정보) | O (ROLE_USER) |
+| POST | /api/auth/register | 회원가입 | Form: UserJoinRequest,<br>Multipart: profileImage | “회원가입 성공” | X |
+| POST | /api/auth/login | 로그인 | JSON:<br>{ “username”: “”,<br>“password”: “”} | { “accessToken”: “”},<br>refreshToken(cookie) | X |
+| POST | /api/auth/logout | 로그아웃 | Cookie: refreshToken | "로그아웃 되었습니다” | O (ROLE_USER),<br>refreshToken 필요 |
+| POST | /api/auth/refresh | 토큰 만료시 재발급 | Cookie: refreshToken | Header:<br>Authorization: Bearer &lt;accessToken&gt; | O (ROLE_USER),<br>refreshToken 필요 |
+| PUT | /api/auth/update | 정보수정 | Form: User<br>Header:<br>Authorization: Bearer &lt;accessToken&gt; | "수정이 완료되었습니다.” | O (ROLE_USER) |
+| DELETE | /api/auth/delete | 회원탈퇴 | Header:<br>Authorization: Bearer &lt;accessToken&gt; | "계정이 성공적으로 탈퇴 처리 되었습니다.” | O (ROLE_USER) |
+
+### CommentController
+| HTTP Method | API | Description | Request Body/Params | Response Body | Authorization |
+| --- | --- | --- | --- | --- | --- |
+| GET | /api/posts/{postId}/comments | 특정 게시글에 대한 댓글 목록 조회 | PathVariable: postId<br>(댓글을 조회할 게시글의 ID) | List&lt;CommentResponse&gt;<br>(댓글 목록) | X |
+| POST | /api/posts/{postId}/comments/write | 댓글 작성 | Header:<br>Authorization: Bearer &lt;accessToken&gt;<br>PathVariable: postId<br>RequestBody: CommentRequest (댓글 내용) | "댓글 등록이 완료되었습니다.” | O (ROLE_USER, ROLE_ADMIN) |
+| PUT | /api/posts/{postId}/comments/{commentId} | 댓글 수정 | Header:<br>Authorization: Bearer &lt;accessToken&gt;<br>PathVariable: postId, commentId<br>RequestBody: CommentRequest | "댓글이 성공적으로 수정되었습니다.” | O (ROLE_USER, ROLE_ADMIN) |
+| DELETE | /api/posts/{postId}/comments/{commentId} | 댓글 삭제 | Header:<br>Authorization: Bearer &lt;accessToken&gt;<br>PathVariable: postId, commentId | 대댓글이 있는 경우:<br>”(soft-delete) ‘(삭제된 댓글 입니다.)’ 삭제”<br>대댓글이 없는 경우:<br>”(soft-delete) UI상에 안보이게 삭제” | O (ROLE_USER, ROLE_ADMIN) |
+
 ### VIDEO_RECOMMEND
 | 요구사항ID         | 구분             | 요구사항 이름          | 요구사항 설명                                                             | API                                                   |
 |--------------------|------------------|-------------------------|---------------------------------------------------------------------------|--------------------------------------------------------|
@@ -254,3 +284,36 @@ npm run dev
 백엔드와 프론트엔드를 동시에 진행해야 했기 때문에 일정이 다소 타이트하게 느껴지기도 했지만, 기획했던 기능들은 대부분 구현할 수 있어서 다행이라고 생각합니다.
 완벽한 결과라고는 할 수 없지만, 좋은 팀원을 만나 갈등 없이 서로의 의견을 주고받으며 프로젝트를 완성할 수 있었던 것은 정말 소중한 경험이었습니다. 이번 프로젝트를 통해 기획부터 구현, 협업까지 많은 부분을 배우고 성장할 수 있었습니다.
 함께 고생해준 팀원에게 고맙다고 말하고 싶습니다!
+### 🍥이현지
+**Keep**
+
+이번 프로젝트에서 회원 관리와 댓글 기능을 담당했습니다. 
+
+인증 방식은 기존의 세션 기반 인증이 아닌 JWT를 채택했습니다. JWT는 무상태(stateless) 구조를 기반으로 서버 확장성과 성능 측면에서 유리하며, 토큰 자체에 사용자 정보와 권한 정보를 포함할 수 있어 서버 간 인증 처리에 있어 효율적이라고 판단했습니다.
+
+Spring Security도 함께 적용하여 인증 및 인가 흐름을 체계적으로 구성했습니다. 필터 체인을 통해 JWT를 검증하고, 어노테이션 기반의 권한 제어를 활용함으로써 보안 로직을 프레임워크 기반에서 안정적으로 구현할 수 있었습니다. 결과적으로 개발 기간 내에 높은 수준의 보안 구조를 갖춘 회원 관리 기능을 완성할 수 있었습니다.
+
+RefreshToken은 DB에 저장하는 방식으로 설계했습니다. 이를 통해 토큰 탈취 등의 보안 사고 발생 시 관리자가 직접 토큰을 만료 처리할 수 있고, 로그아웃 시 해당 토큰을 삭제하여 명확한 세션 종료가 가능하도록 했습니다. 또한 이후에는 요청 로그를 기록·분석하는 방식으로 이상 행위를 탐지하거나 사용자 활동을 추적하는 기능으로 확장할 수 있는 여지를 고려했습니다.
+
+프로필 이미지는 Amazon S3에 저장하고, DB에는 해당 이미지의 URL만을 저장하는 방식으로 구현했습니다. 이로써 서버 및 DB의 스토리지 부담을 줄이고, 이미지 저장에 대한 확장성과 관리 효율성을 확보했습니다.
+
+또한 Jira를 활용하여 업무를 분배하고, 데일리 스크럼을 통해 팀 내 업무 진행 상황을 지속적으로 공유했습니다. 이 과정을 통해 기획, 일정 관리, 커뮤니케이션 측면에서도 체계적인 협업 경험을 쌓을 수 있었습니다.
+
+**Problem**
+
+이번 프로젝트에서는 자체 ID/PW 기반의 로그인 방식만을 제공했기 때문에, 사용자 편의성과 접근성 측면에서 아쉬움이 있었습니다. OAuth와 같은 다양한 인증 방식을 제공하지 못해 사용자 진입 장벽을 낮추는데에 한계가 있었습니다. 
+
+또한 프로필 수정 화면의 UX가 부족하여, 사용자 입장에서 이미지 변경이나 정보 수정 과정이 직관적이지 못했습니다. UI 흐름 및 피드백 구조의 개선이 필요한 상황이었습니다.
+
+댓글 기능은 로그인한 사용자만 작성할 수 있도록 제한하고, 본인 댓글에 대해서만 수정 및 삭제할 수 있도록 구현하였으나, 관리자 권한을 활용한 댓글 관리 기능은 포함하지 못했습니다. 커뮤니티 운영 관점에서 필수적인 기능을 구현하지 못한 점이 아쉬웠습니다.
+그리고 대댓글 기능 또한 구현하지 못했습니다. 댓글 간의 상호작용 흐름을 구성하지 못한 점에서 커뮤니케이션 구조의 완성도가 부족했습니다.
+
+**Try**
+
+기존의 ID/PW 기반의 로그인 방식에 추가적으로 OAuth 2.0 기반의 로그인 기능을 도입할 것입니다. 구글, 네이버, 카카오 등 다양한 외부 인증 수단을 연동함으로써 사용자 접근성을 높이고, JWT 기반 인증과의 통합을 통해 보안성과 확장성도 함께 확보할 것입니다.
+
+프로필 수정 기능은 사용자 친화적인 방식으로 개선할 것입니다. 이미지 미리보기, 변경 확인 피드백, 직관적인 레이아웃 등을 도입하여 수정 과정을 보다 명확하고 편리하게 구성할 것입니다.
+
+댓글 기능에는 관리자 권한을 추가할 것입니다. 관리자 계정이 댓글을 블라인드 처리하거나 삭제 이력을 확인할 수 있도록 하여, 커뮤니티 품질을 유지하고 악성 게시물에 대응할 수 있도록 구현할 것입니다.
+
+마지막으로 대댓글 기능을 구현할 것입니다. 댓글(0)에 대한 대댓글(1)까지만 허용하는 구조로 깊이를 제한하고, @태그를 통해 부모 댓글을 명확히 지정하는 방식으로 단순하고 명료한 구조를 유지할 것입니다. 또한 soft delete 방식을 적용하여 삭제된 댓글의 무결성을 유지하고, 데이터 일관성도 함께 확보할 수 있도록 설계할 것입니다.
