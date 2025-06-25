@@ -216,42 +216,42 @@ SSAFIT은 이러한 문제를 해결하기 위해 다음과 같은 기능을 제
 | PUT | /api/posts/{postId}/comments/{commentId} | 댓글 수정 | Header:<br>Authorization: Bearer &lt;accessToken&gt;<br>PathVariable: postId, commentId<br>RequestBody: CommentRequest | "댓글이 성공적으로 수정되었습니다.” | O (ROLE_USER, ROLE_ADMIN) |
 | DELETE | /api/posts/{postId}/comments/{commentId} | 댓글 삭제 | Header:<br>Authorization: Bearer &lt;accessToken&gt;<br>PathVariable: postId, commentId | 대댓글이 있는 경우:<br>”(soft-delete) ‘(삭제된 댓글 입니다.)’ 삭제”<br>대댓글이 없는 경우:<br>”(soft-delete) UI상에 안보이게 삭제” | O (ROLE_USER, ROLE_ADMIN) |
 
-### VIDEO_RECOMMEND
-| 요구사항ID         | 구분             | 요구사항 이름          | 요구사항 설명                                                             | API                                                   |
-|--------------------|------------------|-------------------------|---------------------------------------------------------------------------|--------------------------------------------------------|
-| VIDEO_RECOMMEND_01 | VIDEO_RECOMMEND  | 유튜브 영상 검색        | 선택 조건(운동 부위, 영상 길이 등)에 따라 유튜브 API에 요청              | [GET] /api/video/search                                   |
-| VIDEO_RECOMMEND_02 | VIDEO_RECOMMEND  | 인기 영상 추천          | 조회수가 높은 영상 중 랜덤 선택                                           | [GET] /api/video/search                                   |
-| VIDEO_RECOMMEND_03 | VIDEO_RECOMMEND  | 랜덤 영상 추천          | 조건에 맞는 영상 중 무작위 선택                                           | [GET] /api/video/search                                   |
-| VIDEO_RECOMMEND_04 | VIDEO_RECOMMEND  | 영상 다시 추천          | 추천받은 영상 스킵하고 다음 영상 추천                                     | [GET] /api/video/reSearch                                |
-| VIDEO_RECOMMEND_05 | VIDEO_RECOMMEND  | 랜덤 영상 선택          | 랜덤 영상 중 하나를 선택해 임시 루틴에 추가                               | [POST] /api/video/youtubeSelect                          |
-| VIDEO_RECOMMEND_06 | VIDEO_RECOMMEND  | 임시 루틴 조회          | 임시 등록한 운동 루틴을 순서대로 조회                                     | [GET] /api/video/routineSelect/{sequence}                |
-| VIDEO_RECOMMEND_07 | VIDEO_RECOMMEND  | 임시 루틴 삭제          | 임시 루틴 영상 중 하나 삭제                                               | [GET] /api/video/routineDelete/{sequence}                |
-| VIDEO_RECOMMEND_08 | VIDEO_RECOMMEND  | 임시 루틴 전체 초기화   | 임시 루틴 전체 초기화                                                     | [GET] /api/video/tempRoutineReset                        |
-| VIDEO_RECOMMEND_09 | VIDEO_RECOMMEND  | 임시 루틴 저장          | 선택한 영상(업로드/랜덤 유튜브/URL 입력) 등록                             | [POST] /api/video/insertVideoRoutine                     |
-| VIDEO_RECOMMEND_10 | VIDEO_RECOMMEND  | 루틴 등록               | 루틴 생성(루틴명, 설명, 영상 목록, 쉬는 시간 등 입력)                     | [POST] /api/video/insertVideoRoutine                     |
-| VIDEO_RECOMMEND_11 | VIDEO_RECOMMEND  | 루틴 삭제               | 운동 루틴 삭제                                                             | [DELETE] /api/video/routineIdDelete/{routineId}          |
-| VIDEO_RECOMMEND_12 | VIDEO_RECOMMEND  | 영상 업로드             | 사용자가 직접 찍은 영상 업로드 (S3 저장 + 영상 정보 입력)                 | [POST] /api/video/myUpload                               |
-| VIDEO_RECOMMEND_13 | VIDEO_RECOMMEND  | 유튜브 URL 입력         | URL로 입력한 유튜브 영상 정보 불러오고, 운동 부위 및 쉬는 시간 입력       | [POST] /api/video/directYoutubeUrl                       |
+### PostController API 명세서
+| HTTP Method | API | Description | Request Body/Params | Response Body | Authorization |
+|-------------|-----|-------------|----------------------|----------------|----------------|
+| POST | /api/post/insert | 게시글 등록 | Form: PostDetailInfo<br>Header: Authorization: Bearer &lt;accessToken&gt; | { "postId": Long } | O (ROLE_USER) |
+| GET | /api/post/{postId} | 게시글 상세 조회 | Path: postId | Post | X |
+| GET | /api/post/{postId}/files | 게시글 첨부파일 조회 | Path: postId | List&lt;PostFile&gt; | X |
+| GET | /api/post/routine/{routineId}/info | 루틴 정보(제목, 내용 등) 조회 | Path: routineId | Routine | X |
+| GET | /api/post/routine/{routineId} | 루틴 영상 리스트 조회 | Path: routineId | List&lt;VideoRoutineSessionData&gt; | X |
+| GET | /api/post/user/{postId} | 게시글 작성자 정보 조회 | Path: postId | User | X |
+| DELETE | /api/post/{postId} | 게시글 삭제 | Path: postId | "게시글 삭제 성공" | O (ROLE_USER) |
+| GET | /api/post/all | 전체 게시글 목록 조회 | 없음 | List&lt;Post&gt; | X |
+| GET | /api/post/latest | 게시글 최신순 조회 | 없음 | List&lt;Post&gt; | X |
+| GET | /api/post/popular | 게시글 인기순 조회<br>(조회수 1점, 좋아요 3점, 댓글수 5점 기준) | 없음 | List&lt;Post&gt; | X |
+| GET | /api/post/part | 특정 운동 부위 게시글 검색 | Query: part | List&lt;Post&gt; | X |
+| PUT | /api/post/update/{postId} | 게시글 수정 | Path: postId<br>Form: PostDetailInfo<br>Optional: files(List&lt;MultipartFile&gt;), filesToDelete(List&lt;Long&gt;)<br>Header: Authorization: Bearer &lt;accessToken&gt; | "게시글 수정 완료" | O (ROLE_USER) |
+| GET | /api/post/me | 현재 접속한 유저 ID 반환 | Header: Authorization: Bearer &lt;accessToken&gt; | Long (userId) | O (ROLE_USER) |
+| POST | /api/post/{postId}/like | 게시글 좋아요/취소 토글 | Path: postId<br>Header: Authorization: Bearer &lt;accessToken&gt; | LikeResponse | O (ROLE_USER) |
+| GET | /api/post/{postId}/like | 게시글 좋아요 수 및 상태 조회 | Path: postId<br>Header: Authorization: Bearer &lt;accessToken&gt; | LikeResponse | O (ROLE_USER) |
+| POST | /api/post/{postId}/increase-view | 게시글 조회수 증가 | Path: postId | int (증가된 조회수) | X |
+| GET | /api/post/{postId}/commentCount | 게시글의 댓글 수 조회 | Path: postId | int (댓글 수) | X |
 
-### COMMUNITY_POST
-| 요구사항ID         | 구분             | 요구사항 이름           | 요구사항 설명                                                                 | API                                                       |
-|--------------------|------------------|--------------------------|-------------------------------------------------------------------------------|------------------------------------------------------------|
-| COMMUNITY_POST_01  | COMMUNITY_POST   | 게시글 등록              | 게시글 정보 저장 (게시글 + 영상-게시글 매핑 정보 분리 저장)                 | [POST] /api/post/insert                                     |
-| COMMUNITY_POST_02  | COMMUNITY_POST   | 게시글 수정              | 제목, 설명, 영상 리스트, 태그 정보 수정                                       | [PUT] /api/post/update/{postId}                             |
-| COMMUNITY_POST_03  | COMMUNITY_POST   | 게시글 삭제              | 게시글 및 연관 매핑 정보 삭제. 영상이 고아 상태면 영상도 삭제                | [DELETE] /api/post/{postId}                                 |
-| COMMUNITY_POST_04  | COMMUNITY_POST   | 게시글 전체 조회         | 커뮤니티 전체 게시글 리스트 조회                                             | [GET] /api/post/all                                         |
-| COMMUNITY_POST_05  | COMMUNITY_POST   | 게시글 상세 조회         | 게시글 상세 정보 조회 (제목, 설명, 영상 목록, 태그, 작성자, 날짜 등)         | [GET] /api/post/{postId}                                    |
-| COMMUNITY_POST_06  | COMMUNITY_POST   | 게시글 파일 정보 조회    | 썸네일, 첨부파일 정보 조회                                                    | [GET] /api/post/{postId}/files                              |
-| COMMUNITY_POST_07  | VIDEO_RECOMMEND  | 루틴 조회                | 루틴-영상 매핑 정보 조회                                                     | [GET] /api/post/routine/{routineId}/info                    |
-| COMMUNITY_POST_08  | VIDEO_RECOMMEND  | 특정 루틴 정보 조회      | 루틴과 연결된 영상 정보 조회                                                 | [GET] /api/post/routine/{routineId}                         |
-| COMMUNITY_POST_09  | VIDEO_RECOMMEND  | 게시글 작성 유저 조회    | 게시글 작성자 정보 조회                                                       | [GET] /api/post/user/{postId}                               |
-| COMMUNITY_POST_10  | COMMUNITY_POST   | 최신 게시글 조회         | 최신 게시글 1개 조회                                                          | [GET] /api/post/latest                                      |
-| COMMUNITY_POST_11  | COMMUNITY_POST   | 인기 게시글 조회         | 좋아요 수 기준 인기 게시글 1개 조회                                           | [GET] /api/post/popular                                     |
-| COMMUNITY_POST_12  | COMMUNITY_POST   | 운동 부위별 게시글 조회  | 운동 부위별 필터 게시글 조회 (전체 포함)                                     | [GET] /api/post/part                                        |
-| COMMUNITY_POST_13  | COMMUNITY_POST   | 게시글 작성 페이지       | 추천받은 영상 기반 게시글 작성 폼 제공. 제목, 설명, 업로드 지원              | [GET] /api/post/{postId}                                    |
-| COMMUNITY_POST_14  | COMMUNITY_POST   | 게시글 좋아요            | 게시글 좋아요 및 좋아요 수 조회                                              | [POST] /api/post/{postId}/like <br> GET /api/post/{postId}/like |
-| COMMUNITY_POST_15  | COMMUNITY_POST   | 상세 페이지 조회수 증가   | 상세 조회 시 조회수 증가 처리                                                 | [POST] /api/post/{postId}/increase-view                     |
-| COMMUNITY_POST_16  | COMMUNITY_POST   | 댓글 수 조회              | 게시글에 달린 댓글 수 조회                                                    | [GET] /api/post/{postId}/commentCount                       |
+---
+
+### VideoController API 명세서
+| HTTP Method | API | Description | Request Body/Params | Response Body | Authorization |
+|-------------|-----|-------------|----------------------|----------------|----------------|
+| GET | /api/video/search | 조건에 맞는 유튜브 영상 검색 및 추천 | Query: part, duration (optional), recommend (optional)<br>Header: Authorization: Bearer &lt;accessToken&gt;<br>Session: videoRoutineData | YoutubeVideo (랜덤 1개) | O (ROLE_USER) |
+| GET | /api/video/reSearch | 특정 유튜브 영상 제외하고 다시 추천 | Query: youtubeVideoId<br>Session: videoRoutineData | YoutubeVideo (랜덤 1개) | X |
+| GET | /api/video/youtubeSelect | 루틴에 유튜브 영상 추가 | Query: youtubeVideoId, sequence, restSecondsAfter<br>Session: videoRoutineData → videoRoutineResult로 이동 | YoutubeVideo | X |
+| GET | /api/video/routineSelect/{sequence} | 루틴에서 특정 순서의 영상 조회 | Path: sequence<br>Session: videoRoutineResult | YoutubeVideo or UploadedVideo | X |
+| GET | /api/video/routineDelete/{sequence} | 루틴에서 특정 순서의 영상 삭제 | Path: sequence<br>Session: videoRoutineResult | VideoRoutineSessionData | X |
+| GET | /api/video/tempRoutineReset | 세션에 저장된 임시 루틴 초기화 | 없음<br>Session: videoRoutineResult 제거 | "임시 루틴과 내부 리스트가 초기화되었습니다." | X |
+| POST | /api/video/insertVideoRoutine | 세션의 영상 리스트를 이용해 루틴 생성 및 저장 | Form: routineTitle, routineContent<br>Header: Authorization: Bearer &lt;accessToken&gt;<br>Session: videoRoutineResult | { routineId, message, routineVideos } | O (ROLE_USER) |
+| DELETE | /api/video/routineIdDelete/{routineId} | 루틴 삭제 | Path: routineId | "삭제 성공: {result}" | O (ROLE_USER) |
+| POST | /api/video/myUpload | 유저가 직접 촬영한 영상 업로드 | Multipart: file<br>Params: title, part, durationSeconds, sequence, restSecondsAfter<br>Header: Authorization: Bearer &lt;accessToken&gt;<br>Session: videoRoutineResult | UploadedVideo | O (ROLE_USER) |
+| POST | /api/video/directYoutubeUrl | 유튜브 URL 직접 입력하여 영상 추가 | Params: url, part, sequence, restSecondsAfter<br>Header: Authorization: Bearer &lt;accessToken&gt;<br>Session: videoRoutineResult | YoutubeVideo | O (ROLE_USER) |
 
 <br>
 
